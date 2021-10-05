@@ -1,7 +1,7 @@
 from keras.models import Sequential
 from keras.models import load_model
 from keras.layers import Dense
-from keras.optimizers import Adam
+from keras.optimizer_v2.adam import Adam
 import numpy as np
 import random
 from collections import deque
@@ -26,16 +26,16 @@ class Agent:
     model.add(Dense(units=32, activation="relu"))
     model.add(Dense(units=8, activation="relu"))
     model.add(Dense(self.action_size, activation="linear"))
-    model.compile(loss="mse", optimizer=Adam(lr=0.001))
+    model.compile(loss="mse", optimizer=Adam(learning_rate=0.001))
     return model
 
   def act(self, state):
-    if not self.is_eval and random.random()<= self.epsilon:
+    if not self.is_eval and random.random() <= self.epsilon:
         return random.randrange(self.action_size)
     options = self.model.predict(state)
     return np.argmax(options[0])
 
-  def expReplay(self, batch_size):
+  def exp_replay(self, batch_size):
     mini_batch = []
     l = len(self.memory)
     for i in range(l - batch_size + 1, l):
