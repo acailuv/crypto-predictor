@@ -31,7 +31,7 @@ class Agent:
 
   def act(self, state):
     if not self.is_eval and random.random() <= self.epsilon:
-        return random.randrange(self.action_size)
+        return random.randrange(self.action_size)   # Modify this according to LSTM data.
     options = self.model.predict(state)
     return np.argmax(options[0])
 
