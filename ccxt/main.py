@@ -32,5 +32,8 @@ df = pd.DataFrame(data, columns=header)
 
 print(df)
 
-open('BTCIDR.txt', 'w')
-np.savetxt('BTCIDR.txt', df.Open, fmt='%.8f')
+df.to_pickle('BTCIDR.data')
+
+rd = pd.read_pickle('BTCIDR.data')
+
+print(rd)
