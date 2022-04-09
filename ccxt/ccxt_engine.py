@@ -43,7 +43,7 @@ class CCXTEngine:
       res = pd.read_pickle(f"{RESOURCE_FOLDER}/{self.file_name}")
 
       if self.debug:
-        print(f"\n\nData File Found!\n{self.file_name}")
+        print(f"\n\nData File Found!\n{self.file_name}:\n{res}")
       return 
     
     if self.debug:
