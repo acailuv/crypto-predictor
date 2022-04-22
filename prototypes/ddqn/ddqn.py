@@ -113,7 +113,7 @@ class DQN(nn.Module):
     super(DQN, self).__init__()
     self.input_dim = input_dim
     self.output_dim = output_dim
-    
+
     self.fc = nn.Sequential(
       nn.Linear(self.input_dim[0], 128),
       nn.ReLU(),
@@ -157,7 +157,7 @@ class DQNAgent:
     state = torch.FloatTensor(state).float().unsqueeze(0).to(self.device)
     qvals = self.model.forward(state)
     action = np.argmax(qvals.cpu().detach().numpy())
-    
+
     if(np.random.randn() < eps):
       return self.env.action_space.sample()
 
@@ -165,6 +165,7 @@ class DQNAgent:
 
   def compute_loss(self, batch):     
     states, actions, rewards, next_states, dones = batch
+    print(f"{states} | {actions}")
     states = torch.FloatTensor(states).to(self.device)
     actions = torch.LongTensor(actions).to(self.device)
     rewards = torch.FloatTensor(rewards).to(self.device)
@@ -174,6 +175,10 @@ class DQNAgent:
     # resize tensors
     actions = actions.view(actions.size(0), 1)
     dones = dones.view(dones.size(0), 1)
+    states = states.view(states.size(), -1)
+    next_states = states.view(next_states.size(), -1)
+
+    print(f"{actions.size()} | {dones.size()} | {states.size()} | {next_states.size()}")
 
     # compute loss
     curr_Q = self.model.forward(states).gather(1, actions)

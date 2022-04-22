@@ -18,8 +18,8 @@ class CCXTIndodaxEngine:
     self.indodax = ccxt.indodax()
     self.pair_symbol = pair_symbol
     self.start_time = self.indodax.parse8601(f"{start_year}-01-01 00:00:00")
-    self.end_time = self.indodax.parse8601(f"{end_year}-01-01 23:59:59")
-    self.file_name = f"{utils.strip_alphanumeric(pair_symbol)}.data"
+    self.end_time = self.indodax.parse8601(f"{end_year}-12-31 23:59:59")
+    self.file_name = f"{utils.strip_alphanumeric(pair_symbol)}.csv"
     self.debug = debug
 
     if self.debug:
@@ -94,7 +94,7 @@ class CCXTIndodaxEngine:
 
   def load_data(self):
     if self.check_file_in_directory():
-      res = pd.read_pickle(f"{RESOURCE_FOLDER}/{self.file_name}")
+      res = pd.read_csv(f"{RESOURCE_FOLDER}/{self.file_name}")
 
       if self.debug:
         print(f"\n\nData File Found!\n{self.file_name}:\n{res}")
@@ -107,7 +107,7 @@ class CCXTIndodaxEngine:
     data_with_trend = self.evaluate_trends(data)
     data_df = self.transform_to_dataframe(data_with_trend)
 
-    data_df.to_pickle(f"{RESOURCE_FOLDER}/{self.file_name}")
+    data_df.to_csv(f"{RESOURCE_FOLDER}/{self.file_name}")
 
     if self.debug:
       print(f"\n\nDownload Complete!\n> Dictionary Form:\n{data}\n> DataFrame Form:\n{data_df}")
