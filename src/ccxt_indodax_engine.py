@@ -50,7 +50,7 @@ class CCXTIndodaxEngine:
 
         if self.debug:
           download_percentage = round((len(data)/candle_no)*100, 6)
-          print(f"{len(data)} of {candle_no} candles loaded....\t({len(candles)} Data/s) -- {download_percentage} %", end="\r")
+          print(f"{len(data)} of {candle_no} candles loaded....\t({len(candles)} Data/hit) -- {download_percentage} %", end="\r")
       except (ccxt.ExchangeError, ccxt.AuthenticationError, ccxt.ExchangeNotAvailable, ccxt.RequestTimeout) as error:
         print("Got an error", type(error).__name__, error.args, ", retrying in", ERROR_DELAY, "seconds...")
         time.sleep(ERROR_DELAY)
