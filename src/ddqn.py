@@ -1,14 +1,14 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.autograd as autograd
-
-import numpy as np
-import pandas as pd
 import random
 from collections import deque
 
-from  crypto_trading_environment import CryptoTradingEnvironment
+import numpy as np
+import pandas as pd
+import torch
+import torch.autograd as autograd
+import torch.nn as nn
+import torch.nn.functional as F
+
+from crypto_trading_environment import CryptoTradingEnvironment
 
 # TODO 1: Adjust ENV to crypto price data environment
 # TODO 2: Refactor Agent, BasicBuffer, etc. into a seperate for maximum readability

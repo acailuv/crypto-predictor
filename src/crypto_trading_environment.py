@@ -1,6 +1,6 @@
+import math
 import random
 
-import math
 import gym
 import numpy as np
 from gym import spaces
