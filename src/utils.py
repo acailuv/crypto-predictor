@@ -53,7 +53,7 @@ def load_pickle(file_dir):
     f.close()
     return data
   except EOFError:
-    return None
+    return []
 
 def save_pickle(data, file_dir):
   try:
@@ -83,14 +83,19 @@ def check_file_in_res_directory(file_name):
 def evaluate_trends(data, debug=False):
     data_with_trend = []
 
-    for candle in data:
-      current_candle = candle
-      open_price = candle[1]
-      close_price = candle[4]
+    for i, candle in enumerate(data):
+      if i == len(data)-1:
+        break # loop is finished, erase the final row
 
-      if open_price < close_price:
+      current_candle = candle
+      next_candle = data[i+1]
+      
+      open_price = candle[1]
+      next_close_price = next_candle[4]
+
+      if open_price < next_close_price:
         current_candle.append(UPTREND)
-      elif open_price == close_price:
+      elif open_price == next_close_price:
         current_candle.append(SIDEWAYS)
       else:
         current_candle.append(DOWNTREND)
@@ -107,3 +112,6 @@ def transform_to_dataframe_with_trend(data_with_trend):
   data_df = pd.DataFrame(data_with_trend, columns=header)
 
   return data_df
+
+def list_average(ls):
+  return sum(ls)/len(ls)

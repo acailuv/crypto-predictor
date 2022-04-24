@@ -9,7 +9,7 @@ PRINCIPAL = 1000000
 MAX_SHARE_PRICE = 10000000000
 MAX_NUM_SHARES = 1000000000
 MAX_ACCOUNT_BALANCE = 1000000000
-MAX_STEPS = 100000
+MAX_STEPS = 500
 
 class CryptoTradingEnvironment(gym.Env):
   def __init__(self, df):
@@ -80,7 +80,9 @@ class CryptoTradingEnvironment(gym.Env):
     done = self.net_worth <= 0
     next_states = self._next_observation()
 
-    return next_states, reward, done, {}
+    profit = self.net_worth - PRINCIPAL
+
+    return next_states, reward, done, {}, profit
   
   def _take_action(self, action):
     # Set the current price to a random price within the time step

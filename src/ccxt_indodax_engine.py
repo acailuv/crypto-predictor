@@ -25,6 +25,7 @@ class CCXTIndodaxEngine:
     data = []
     cache_file_dir = f"{u.RESOURCE_FOLDER}/{file_name}.cache"
     cache_file_name = f"{file_name}.cache"
+    old_start_time = start_time
     
     if u.check_file_in_res_directory(cache_file_name):
       data = u.load_pickle(cache_file_dir)
@@ -33,9 +34,9 @@ class CCXTIndodaxEngine:
       else:
         if self.debug:
           print(f"\n\nCache Data Found! (Downloaded Data: {len(data)}) Continuing Download...")
-        start_time = len(data) * TIMEFRAME_MULTI
+        start_time += (len(data) * TIMEFRAME_MULTI)
 
-    candle_no = math.ceil((int(end_time) - int(start_time)) / TIMEFRAME_MULTI)
+    candle_no = math.ceil((int(end_time) - int(old_start_time)) / TIMEFRAME_MULTI)
 
     if self.debug:
       print("\n\nDownloading...")

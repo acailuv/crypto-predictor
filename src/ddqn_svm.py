@@ -2,9 +2,13 @@ import random
 from collections import deque
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 class BasicBuffer:
 
@@ -38,6 +42,26 @@ class BasicBuffer:
   def __len__(self):
     return len(self.buffer)
 
+class SupportVectorClassifier:
+  def __init__(self, data_source):
+    df = data_source
+    df = df.drop(["Timestamp"], axis=1)
+
+    x = df.drop(["Trend"], axis=1)
+    x = x.values
+    y = df["Trend"]
+    
+    x_train, self.x_test, y_train, self.y_test = train_test_split(x, y, test_size = 0.20)
+
+    self.classifier = SVC(kernel='rbf')
+    self.classifier.fit(x_train, y_train)
+  
+  def predict(self, env):
+    return self.classifier.predict(env)
+  
+  def evaluate_classifier(self):
+    predictions = self.predict(self.x_test)
+    print(f"Accuracy -> {accuracy_score(self.y_test, predictions)*100} %")
 
 def mini_batch_train(env, agent, max_episodes, max_steps, batch_size):
   episode_rewards = []
@@ -87,9 +111,9 @@ class DQN(nn.Module):
     return qvals
 
 
-class DQNAgent:
+class DQNSVCAgent:
 
-  def __init__(self, env, learning_rate=3e-4, gamma=0.99, tau=0.01, buffer_size=10000):
+  def __init__(self, env, data_source, learning_rate=3e-4, gamma=0.99, tau=0.01, buffer_size=10000):
     self.env = env
     self.learning_rate = learning_rate
     self.gamma = gamma
@@ -106,15 +130,19 @@ class DQNAgent:
       target_param.data.copy_(param)
 
     self.optimizer = torch.optim.Adam(self.model.parameters())
+
+    self.classifier = SupportVectorClassifier(data_source)
       
       
   def get_action(self, state, eps=0.20):
-    state = torch.FloatTensor(state).float().unsqueeze(0).to(self.device)
-    qvals = self.model.forward(state)
+    state_tensor = torch.FloatTensor(state).float().unsqueeze(0).to(self.device)
+    qvals = self.model.forward(state_tensor)
     action = np.argmax(qvals.cpu().detach().numpy())
     
     if(np.random.randn() < eps):
-      return self.env.action_space.sample()
+      predictions = self.classifier.predict(state)
+      latest_prediction = predictions[-1] # get the latest element
+      return latest_prediction
 
     return action
 
@@ -129,6 +157,7 @@ class DQNAgent:
     actions = torch.LongTensor(actions).to(self.device)
     rewards = torch.FloatTensor(rewards).to(self.device)
     next_states = torch.FloatTensor(next_states).to(self.device)
+    dones = list(map(int, dones)) # converts [True, False, True, ...] to [1, 0, 1, ...]
     dones = torch.FloatTensor(dones)
 
     # resize tensors
