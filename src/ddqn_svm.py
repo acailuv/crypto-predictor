@@ -2,14 +2,17 @@ import random
 from collections import deque
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
+import utils as u
+
+SVM_SAMPLE_SIZE = 200000
+SVM_KERNEL_TYPE = "rbf"
 class BasicBuffer:
 
   def __init__(self, max_size):
@@ -46,6 +49,7 @@ class SupportVectorClassifier:
   def __init__(self, data_source):
     df = data_source
     df = df.drop(["Timestamp"], axis=1)
+    df = df.head(SVM_SAMPLE_SIZE)
 
     x = df.drop(["Trend"], axis=1)
     x = x.values
@@ -53,8 +57,20 @@ class SupportVectorClassifier:
     
     x_train, self.x_test, y_train, self.y_test = train_test_split(x, y, test_size = 0.20)
 
-    self.classifier = SVC(kernel='rbf')
-    self.classifier.fit(x_train, y_train)
+    model_file_name = f"SVC_{SVM_KERNEL_TYPE}-{SVM_SAMPLE_SIZE}.model"
+    model_file_dir = f"{u.MODELS_FOLDER}/{model_file_name}"
+
+
+    if u.check_file_in_models_directory(model_file_name):
+      print("Model Data Found! Using Cached Model.")
+      self.classifier = u.load_pickle(model_file_dir)
+    else:
+      print("No Model Found! Constructing Model...")
+      self.classifier = SVC(kernel=SVM_KERNEL_TYPE)
+      self.classifier.fit(x_train, y_train)
+      u.save_pickle(self.classifier, model_file_dir)
+
+    self.evaluate_classifier()
   
   def predict(self, env):
     return self.classifier.predict(env)
@@ -152,6 +168,7 @@ class DQNSVCAgent:
     # converting to numpy array (for faster performance)
     states = np.array(states)
     rewards = np.array(rewards)
+    next_states = np.array(next_states)
 
     states = torch.FloatTensor(states).to(self.device)
     actions = torch.LongTensor(actions).to(self.device)

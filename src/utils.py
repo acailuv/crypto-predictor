@@ -4,6 +4,8 @@ import pickle
 import pandas as pd
 
 RESOURCE_FOLDER = "./res"
+MODELS_FOLDER = "./models"
+RESULTS_FOLDER = "./results"
 
 DOWNTREND = 0
 SIDEWAYS = 1
@@ -61,22 +63,46 @@ def save_pickle(data, file_dir):
     pickle.dump(data, f)
     f.close()
     return True
-  except:
+  except Exception as err:
+    print(f"Error while saving file! {err}")
     return False
 
+def interval_save_pickle(data, file_dir, i, interval=100):
+  if i == interval:
+    save_pickle(data, file_dir)
+    return 0
+  
+  return i + 1
+
 def get_res_directory_map(debug=False):
-    directory_map = {}
-    for f in os.listdir(RESOURCE_FOLDER):
-      directory_map[f] = True
-    
-    if debug:
-      print(f"\n\nDirectory Map:\n{directory_map}")
-    
-    return directory_map
+  directory_map = {}
+  for f in os.listdir(RESOURCE_FOLDER):
+    directory_map[f] = True
+  
+  if debug:
+    print(f"\n\nDirectory Map:\n{directory_map}")
+  
+  return directory_map
+
+def get_models_directory_map(debug=False):
+  directory_map = {}
+  for f in os.listdir(MODELS_FOLDER):
+    directory_map[f] = True
+  
+  if debug:
+    print(f"\n\nDirectory Map:\n{directory_map}")
+  
+  return directory_map
 
 def check_file_in_res_directory(file_name):
   try:
     return get_res_directory_map()[file_name]
+  except:
+    return False
+
+def check_file_in_models_directory(file_name):
+  try:
+    return get_models_directory_map()[file_name]
   except:
     return False
 
@@ -115,3 +141,15 @@ def transform_to_dataframe_with_trend(data_with_trend):
 
 def list_average(ls):
   return sum(ls)/len(ls)
+
+def generate_rewards_profits_dataframe(episode_rewards, profits):
+  if len(episode_rewards) != len(profits):
+    raise Exception("Length of episode_rewards should equal to length of profits")
+  
+  compiled_data = []
+
+  for i in range(len(episode_rewards)):
+    data = [i, episode_rewards[i], profits[i]]
+    compiled_data.append(data)
+  
+  return pd.DataFrame(compiled_data, columns=["Episode #", "Rewards", "Profits"])

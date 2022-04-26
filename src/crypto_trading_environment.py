@@ -74,13 +74,12 @@ class CryptoTradingEnvironment(gym.Env):
     self.current_step += 1
     if self.current_step > len(self.df.loc[:, 'Open'].values) - 6:
       self.current_step = 0
-    delay_modifier = (self.current_step / MAX_STEPS)
     
-    reward = self.balance * delay_modifier
+    profit = self.net_worth - PRINCIPAL
+
+    reward = (profit/self.current_step) * 100
     done = self.net_worth <= 0
     next_states = self._next_observation()
-
-    profit = self.net_worth - PRINCIPAL
 
     return next_states, reward, done, {}, profit
   

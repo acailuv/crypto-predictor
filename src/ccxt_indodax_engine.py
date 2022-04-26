@@ -11,6 +11,7 @@ import utils as u
 TIMEFRAME = "1m"
 TIMEFRAME_MULTI = 60*1000
 ERROR_DELAY = 15
+FILE_SAVE_INTERVAL = 100
 
 class CCXTIndodaxEngine:
   def __init__(self, debug=False):
@@ -26,6 +27,7 @@ class CCXTIndodaxEngine:
     cache_file_dir = f"{u.RESOURCE_FOLDER}/{file_name}.cache"
     cache_file_name = f"{file_name}.cache"
     old_start_time = start_time
+    current_iteration = 0
     
     if u.check_file_in_res_directory(cache_file_name):
       data = u.load_pickle(cache_file_dir)
@@ -47,11 +49,10 @@ class CCXTIndodaxEngine:
         start_time += len(candles) * TIMEFRAME_MULTI
         data += candles
 
-        u.save_pickle(data, cache_file_dir)
+        current_iteration = u.interval_save_pickle(data, cache_file_dir, current_iteration)
 
-        if self.debug:
-          download_percentage = round((len(data)/candle_no)*100, 6)
-          print(f"{len(data)} of {candle_no} candles loaded....\t({len(candles)} Data/hit) -- {download_percentage} %", end="\r")
+        download_percentage = round((len(data)/candle_no)*100, 6)
+        print(f"{len(data)} of {candle_no} candles loaded....\t\t({len(candles)} Data/hit) -- {download_percentage} %", end="\r")
       except (ccxt.ExchangeError, ccxt.AuthenticationError, ccxt.ExchangeNotAvailable, ccxt.RequestTimeout) as error:
         print("Got an error", type(error).__name__, error.args, ", retrying in", ERROR_DELAY, "seconds...")
         time.sleep(ERROR_DELAY)
@@ -79,8 +80,5 @@ class CCXTIndodaxEngine:
     data_df = u.transform_to_dataframe_with_trend(data_with_trend)
 
     data_df.to_csv(f"{u.RESOURCE_FOLDER}/{file_name}")
-
-    if self.debug:
-      print(f"\n\nDownload Complete!\n> Raw Form:\n{data}\n> DataFrame Form:\n{data_df}")
 
     return data_df
