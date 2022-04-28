@@ -8,7 +8,7 @@ SVM_SAMPLE_SIZE = 50000
 SVM_KERNEL_TYPE = "rbf"
 
 class SupportVectorClassifier:
-  def __init__(self, data_source):
+  def __init__(self, data_source, data_sample_count=SVM_SAMPLE_SIZE, kernel_type=SVM_KERNEL_TYPE):
     df = data_source
     df = df.drop(["Timestamp"], axis=1)
     df = df.head(SVM_SAMPLE_SIZE)
@@ -19,7 +19,7 @@ class SupportVectorClassifier:
     
     x_train, self.x_test, y_train, self.y_test = train_test_split(x, y, test_size = 0.20)
 
-    model_file_name = f"SVC_{SVM_KERNEL_TYPE}-{SVM_SAMPLE_SIZE}.model"
+    model_file_name = f"SVC_{kernel_type}-{data_sample_count}.model"
     model_file_dir = f"{u.MODELS_FOLDER}/{model_file_name}"
 
 
@@ -28,7 +28,7 @@ class SupportVectorClassifier:
       self.classifier = u.load_pickle(model_file_dir)
     else:
       print("No Model Found! Constructing Model...")
-      self.classifier = SVC(kernel=SVM_KERNEL_TYPE)
+      self.classifier = SVC(kernel=kernel_type)
       self.classifier.fit(x_train, y_train)
       u.save_pickle(self.classifier, model_file_dir)
 
