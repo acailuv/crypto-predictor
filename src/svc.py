@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn import preprocessing
 
 import utils as u
 
@@ -18,7 +19,10 @@ class SupportVectorClassifier:
     x = df.drop(["Trend"], axis=1)
     x = x.values
     y = df["Trend"]
-    
+
+    scalerX = preprocessing.StandardScaler().fit(x)
+    x = scalerX.transform(x)
+
     self.x_train, self.x_test, y_train, self.y_test = train_test_split(x, y, test_size = 0.20)
 
     model_file_name = f"SVC_{kernel_type}-{data_sample_count}.model"
@@ -33,8 +37,6 @@ class SupportVectorClassifier:
       self.classifier = SVC(kernel=kernel_type)
       self.classifier.fit(self.x_train, y_train)
       u.save_pickle(self.classifier, model_file_dir)
-
-    self.evaluate_classifier()
   
   def predict(self, env):
     return self.classifier.predict(env)
