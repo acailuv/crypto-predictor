@@ -34,7 +34,8 @@ class SupportVectorClassifier:
       self.classifier = u.load_pickle(model_file_dir)
     else:
       print("No Model Found! Constructing Model...")
-      self.classifier = SVC(kernel=kernel_type)
+      # self.classifier = SVC(kernel=kernel_type)
+      self.classifier = SVC(kernel=kernel_type, gamma=100, C=100)
       self.classifier.fit(self.x_train, y_train)
       u.save_pickle(self.classifier, model_file_dir)
   
