@@ -3,7 +3,10 @@ import random
 
 import gym
 import numpy as np
+import pandas as pd
 from gym import spaces
+from sklearn import preprocessing
+from sklearn.metrics import accuracy_score
 
 PRINCIPAL = 1000000
 MAX_SHARE_PRICE = 10000000000
@@ -123,3 +126,41 @@ class CryptoTradingEnvironment(gym.Env):
     print(f'Avg cost for held shares: {self.cost_basis} (Total sales value: {self.total_sales_value})')
     print(f'Net worth: {self.net_worth} (Max net worth: {self.max_net_worth})')
     print(f'Profit: {profit}')
+
+class CryptoTradingEnvironmentSVM:
+  def __init__(self, df, classifier):
+    self.df = df
+    
+    self.profits = []
+    self.balance = PRINCIPAL
+    self.inventory = 0
+
+    self.classifier = classifier
+  
+  def simulate_trade(self):
+    predictions = self.classifier.get_predictions()[:1000:]
+    truth = self.classifier.y_test
+    for i in range(len(predictions)):
+      current_decision = predictions[i]
+      current_price = self.df.iloc[truth.index[truth.iloc[i]]]["Close"]
+      total_possible = self.balance / current_price
+      shares_bought = total_possible * 0.05
+
+      if current_decision == 0:
+        # Next is downtrend, sell 5%
+        if self.inventory > 0:
+          self.balance += self.inventory * 0.05 * current_price
+          self.inventory = self.inventory * 0.95
+
+      elif current_decision == 2:
+        # Next is uptrend, buy more!
+        trx = shares_bought * current_price
+        
+        if self.balance > trx:
+          self.balance -= trx
+          self.inventory += shares_bought
+      
+      net_worth = self.balance + (self.inventory * current_price)
+      self.profits.append(net_worth - PRINCIPAL)
+
+      print(f"Trade {i} | nw: {net_worth}; profits: {net_worth - PRINCIPAL}")

@@ -6,6 +6,9 @@ import pandas as pd
 RESOURCE_FOLDER = "./res"
 MODELS_FOLDER = "./models"
 RESULTS_FOLDER = "./results"
+SVM_RESULTS_FOLDER = "./svm-results"
+SVM_RESULTS_FOLDER_DATA = "data"
+SVM_RESULTS_FOLDER_GRAPHICS = "graphics"
 
 DOWNTREND = 0
 SIDEWAYS = 1
@@ -47,6 +50,19 @@ def get_menu_option(msg, valid_options, convert_to_int=True):
     opt = get_option(msg, convert_to_int)
   
   return opt
+
+def get_boolchar(msg):
+  valid_boolchars = ["y", "n"]
+  opt = get_option(f"{msg} (Y/N): ", False)
+
+  while opt.lower() not in valid_boolchars:
+    print(f"Invalid Option. Your Option [{opt}] does not exists in option choices: {valid_boolchars}\n\n")
+    opt = get_option(f"{msg} (Y/N): ", False)
+  
+  if opt == valid_boolchars[0]:
+    return True
+  else:
+    return False
 
 def load_pickle(file_dir):
   try:
@@ -154,6 +170,17 @@ def generate_rewards_profits_dataframe(episode_rewards, profits):
   
   return pd.DataFrame(compiled_data, columns=["Episode #", "Rewards", "Profits"])
 
+def generate_profits_dataframe(profits):
+  compiled_data = []
+  accumulated_profits = 0
+
+  for i in range(len(profits)):
+    accumulated_profits += profits[i]
+    data = [i, profits[i], accumulated_profits]
+    compiled_data.append(data)
+  
+  return pd.DataFrame(compiled_data, columns=["Episode #", "Profits", "Accumulative Profits"])
+
 def mini_batch_train(env, agent, max_episodes, max_steps, batch_size):
   episode_rewards = []
   profits = []
@@ -167,6 +194,9 @@ def mini_batch_train(env, agent, max_episodes, max_steps, batch_size):
 
     for step in range(max_steps):
       action = agent.get_action(state)
+
+      action = action%3
+
       next_state, reward, done, _, profit = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward

@@ -38,9 +38,9 @@ class DDQNSVCAgent:
     if(np.random.randn() < eps):
       predictions = self.classifier.predict(state)
       latest_prediction = predictions[-1] # get the latest element
-      return latest_prediction
+      return latest_prediction%3
 
-    return action
+    return action%3
 
   def compute_loss(self, batch):     
     states, actions, rewards, next_states, dones = batch
@@ -65,8 +65,6 @@ class DDQNSVCAgent:
     next_states = states.view(next_states.size(), -1)
 
     action = actions[0].item()
-    if action > 2:
-      action = 1
 
     # compute loss
     curr_Q = self.model.forward(states)[0][0][action]
