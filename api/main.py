@@ -69,7 +69,9 @@ def train_svc():
   data_sample_count = u.get_int("Data Sampling Count: ")
   kernel_type = u.get_menu_option("Kernel Type ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']: ", ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'], False)
   pair_symbol = u.get_alphanumeric("Training Pair Symbol (e.g. BTC/IDR): ")
-  classifier = svc.SupportVectorClassifier(df, data_sample_count, kernel_type, pair_symbol, 80, 18)
+  gamma = u.get_int("Gamma: ")
+  C = u.get_int("C: ")
+  classifier = svc.SupportVectorClassifier(df, data_sample_count, kernel_type, pair_symbol, gamma, C)
 
   print(f"\nModel Construction Complete!")
   classifier.evaluate_classifier()

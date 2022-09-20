@@ -70,6 +70,6 @@ class SupportVectorClassifier:
         cmap=plt.cm.Blues,
         normalize=None,
     )
-    disp.ax_.set_title(f"SVM - Confusion Matrix - {self.pair}/{self.data_sample_count}/{self.kernel_type.upper()}/gamma={self.gamma}/C={self.C}")
+    disp.ax_.set_title(f"SVM - Confusion Matrix - {self.pair}/{self.kernel_type.upper()}/gamma={self.gamma}/C={self.C}")
 
     plt.show()
