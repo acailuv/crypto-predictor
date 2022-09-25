@@ -1,7 +1,7 @@
 for i in range(1, 11, 1):
-  print(i)
+    print(i)
 
-  if i == 5:
-    i += 5
+    if i == 5:
+        i += 5
 
 # Prints 1 to 5 ?

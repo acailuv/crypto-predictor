@@ -4,4 +4,4 @@ COPY . .
 
 RUN python3 -m pip install -r requirements.txt --timeout=1000
 
-CMD ["python3", "main.py"]
+CMD ["python3", "server.py"]
