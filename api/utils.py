@@ -238,3 +238,14 @@ def mini_batch_train(env, agent, max_episodes, max_steps, batch_size):
             state = next_state
 
     return episode_rewards, profits
+
+
+def humanize_prediction(prediction):
+    if prediction == UPTREND:
+        return "UPTREND"
+    elif prediction == SIDEWAYS:
+        return "SIDEWAYS"
+    elif prediction == DOWNTREND:
+        return "DOWNTREND"
+
+    raise Exception(f"Unknown prediction: {prediction}")

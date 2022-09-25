@@ -5,4 +5,4 @@ services:
     volumes:
       - ./api:/api
     ports: 
-      - 8080:5000
+      - 8000:8000
