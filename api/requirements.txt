@@ -8,3 +8,5 @@ pydantic==1.8.2
 scikit_learn==1.1.2
 shutup==0.2.0
 torch==1.12.1
+mysql-connector-python
+python-dotenv

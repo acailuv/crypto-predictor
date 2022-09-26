@@ -7,3 +7,4 @@ ori/
 *.png
 *.xlsx
 *.model
+.env

@@ -2,33 +2,19 @@ import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
 from sklearn import preprocessing
+from dotenv import load_dotenv
 
 import svc
 import utils as u
+import ccxt_indodax_engine as cie
+import mysql_client as mc
 
+load_dotenv()
 app = FastAPI()
+mysql = mc.MySQLClient()
 
-# df = pd.read_csv(f"{u.RESOURCE_FOLDER}/BTCIDR_2011-2021.csv")
 model = svc.SupportVectorClassifier(
     data_sample_count=50000, kernel_type="rbf", gamma=1000, C=1000, pair="BTCIDR")
-
-
-class PredictReq(BaseModel):
-    timestamp: float
-    openPrice: float
-    highPrice: float
-    lowPrice: float
-    closePrice: float
-    volume: float
-
-
-class TestReq(BaseModel):
-    a: int
-    b: float
-
-
-class TestRes(BaseModel):
-    result: str
 
 
 @app.get("/health")
@@ -38,16 +24,17 @@ async def healthcheck():
     }
 
 
-@app.post("/predict")
-async def predict(req: PredictReq):
-    req = [[req.timestamp, req.openPrice, req.highPrice,
-            req.lowPrice, req.closePrice, req.volume]]
+@app.get("/predictions/{last_n_minutes}")
+async def get_predictions(last_n_minutes: int):
+    ccxt_engine = cie.CCXTIndodaxEngine()
+    latest_data = ccxt_engine.get_latest_data()[:last_n_minutes]
 
-    normalized_req = preprocessing.normalize(req)
+    scaler = preprocessing.StandardScaler().fit(latest_data)
+    prediction_input = scaler.transform(latest_data)
 
-    predictions = model.predict(normalized_req)
+    predictions = model.predict(prediction_input)
 
     return {
-        "prediction": int(predictions[0]),
-        "humanized_prediction": u.humanize_prediction(predictions[0])
+        "result": latest_data,
+        "predictions": predictions.tolist()
     }

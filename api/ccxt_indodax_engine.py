@@ -23,6 +23,9 @@ class CCXTIndodaxEngine:
             print("\n\n[Indodax] CCXT Engine is Ready!")
             print(f"> Debug Mode: {self.debug}")
 
+    def get_latest_data(self):
+        return self.indodax.fetch_ohlcv("BTC/IDR", "1m")
+
     def download_data(self, start_time, end_time, pair_symbol, file_name):
         data = []
         cache_file_dir = f"{u.RESOURCE_FOLDER}/{file_name}.cache"

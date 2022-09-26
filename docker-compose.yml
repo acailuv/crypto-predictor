@@ -6,3 +6,25 @@ services:
       - ./api:/api
     ports: 
       - 8000:8000
+  
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql:/var/lib/mysql
+  
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+
+volumes:
+  mysql:
