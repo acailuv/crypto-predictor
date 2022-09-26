@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 class MySQLClient:
     def __init__(self):
         self.connection = mysql.connector.connect(
-            host="mysql",
+            host="db",
             user=dotenv_values("MYSQL_USERNAME"),
             password=dotenv_values("MYSQL_PASSWORD"),
             database='db'
