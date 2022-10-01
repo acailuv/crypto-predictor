@@ -1,8 +1,12 @@
 ccxt==1.93.98
 fastapi==0.85.0
+gym==0.26.1
 matplotlib==3.4.3
 numpy==1.19.5
 pandas==1.1.5
+pydantic==1.8.2
 scikit_learn==1.1.2
+shutup==0.2.0
+torch==1.12.1
 mysql-connector-python
 python-dotenv
