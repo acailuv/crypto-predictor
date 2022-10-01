@@ -2,8 +2,7 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
 COPY . .
 
-RUN python3 -m pip install -r requirements.txt --timeout=1000
-RUN pip install "uvicorn[standard]"
+RUN python3 -m pip install -r requirements.txt --timeout=1000 --retries=1000
 
 EXPOSE 8000
 
