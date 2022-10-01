@@ -7,6 +7,13 @@ services:
     ports: 
       - 8000:8000
   
+  app:
+    build: ./app
+    volumes:
+      - ./app:/app
+    ports:
+      - 3000:3000
+  
   db:
     image: mysql:8
     environment:

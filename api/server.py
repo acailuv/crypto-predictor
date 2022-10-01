@@ -34,12 +34,12 @@ async def get_accuracy():
     }
 
 
-@app.get("/predictions/{last_n_minutes}")
-def get_predictions(last_n_minutes: int):
+@app.get("/predictions/{pair}/{last_n_minutes}")
+def get_predictions(pair: str, last_n_minutes: int):
     ccxt_engine = cie.CCXTIndodaxEngine()
     latest_data = ccxt_engine.get_latest_data()[:last_n_minutes]
 
-    scaler = preprocessing.StandardScaler().fit(latest_data)
+    scaler = u.load_pickle(f"{u.SCALRERS_FOLDER}/{pair.upper()}.scaler")
     prediction_input = scaler.transform(latest_data)
 
     res = []
@@ -48,6 +48,8 @@ def get_predictions(last_n_minutes: int):
         u.CORRECT_PREDICTIONS, cast_to=int)["value"]
     total_predictions = mysql.read_common_data(
         u.CANDLES_PREDICTED, cast_to=int)["value"]
+    latest_timestamp = mysql.read_common_data(
+        u.LATEST_TIMESTAMP, cast_to=int)["value"]
 
     predictions = model.predict(prediction_input).tolist()
 
@@ -77,34 +79,31 @@ def get_predictions(last_n_minutes: int):
         if open_price < next_close_price:
             if predictions[i] == u.UPTREND:
                 current_result["is_correct_prediction"] = True
-                correct_predictions_count += 1
 
         elif open_price == next_close_price:
             if predictions[i] == u.SIDEWAYS:
                 current_result["is_correct_prediction"] = True
-                correct_predictions_count += 1
 
         else:
             if predictions[i] == u.DOWNTREND:
                 current_result["is_correct_prediction"] = True
-                correct_predictions_count += 1
+
+        if current_result["is_correct_prediction"] and latest_data[i][0] > latest_timestamp:
+            correct_predictions_count += 1
 
         total_predictions += 1
         res.append(current_result)
 
-    latest_timestamp = mysql.read_common_data(
-        u.LATEST_TIMESTAMP, cast_to=int)["value"]
+    res = sorted(res, key=lambda x: x["timestamp"], reverse=True)
 
-    if latest_timestamp < latest_data[0][0]:
+    if latest_timestamp < res[0]["timestamp"]:
         new_accuracy = correct_predictions_count/total_predictions
 
         mysql.write_common_data(u.ACCURACY_PERCENTAGE, new_accuracy)
         mysql.write_common_data(u.CANDLES_PREDICTED, total_predictions)
         mysql.write_common_data(u.CORRECT_PREDICTIONS,
                                 correct_predictions_count)
-        mysql.write_common_data(u.LATEST_TIMESTAMP, latest_data[0][0])
-
-    res = sorted(res, key=lambda x: x["timestamp"], reverse=True)
+        mysql.write_common_data(u.LATEST_TIMESTAMP, res[0]["timestamp"])
 
     return {
         "result": res,
