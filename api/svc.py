@@ -15,20 +15,20 @@ DEFAULT_C = 18
 
 class SupportVectorClassifier:
     def __init__(self, data_source=None, data_sample_count=SVM_SAMPLE_SIZE, kernel_type=SVM_KERNEL_TYPE, pair=DEFAULT_PAIR, gamma=DEFAULT_GAMMA, C=DEFAULT_C, save_model=True):
-        if data_source != None:
-            df = data_source
-            df = df.drop(["Timestamp"], axis=1)
-            df = df.head(data_sample_count)
+        df = data_source
+        df = df.drop(["Timestamp"], axis=1)
+        df = df.head(data_sample_count)
 
-            x = df.drop(["Trend"], axis=1)
-            x = x.values
-            y = df["Trend"]
+        x = df.drop(["Trend"], axis=1)
+        x = x.values
+        y = df["Trend"]
 
-            scalerX = preprocessing.StandardScaler().fit(x)
-            x = scalerX.transform(x)
+        scalerX = preprocessing.StandardScaler().fit(x)
+        u.save_pickle(scalerX, f"{u.SCALRERS_FOLDER}/{pair}.scaler")
+        x = scalerX.transform(x)
 
-            self.x_train, self.x_test, y_train, self.y_test = train_test_split(
-                x, y, test_size=0.20)
+        self.x_train, self.x_test, y_train, self.y_test = train_test_split(
+            x, y, test_size=0.20)
 
         model_file_name = f"SVC_{kernel_type}-{data_sample_count}-{pair}-g{gamma}-C{C}.model"
         model_file_dir = f"{u.MODELS_FOLDER}/{model_file_name}"
@@ -45,9 +45,6 @@ class SupportVectorClassifier:
             print("Model Data Found! Using Cached Model.")
             self.classifier = u.load_pickle(model_file_dir)
         else:
-            if data_source != None:
-                raise Exception("Data source cannot be found")
-
             print("No Model Found! Constructing Model...")
             # self.classifier = SVC(kernel=kernel_type)
             self.classifier = SVC(kernel=kernel_type, gamma=gamma, C=C)
