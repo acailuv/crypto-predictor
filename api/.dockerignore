@@ -1,2 +1,5 @@
 backups/
 __pycache__/
+res/
+results/
+svm-results/
