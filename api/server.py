@@ -1,5 +1,6 @@
 import pandas as pd
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sklearn import preprocessing
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ import mysql_client as mc
 
 load_dotenv()
 app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods="*", allow_headers="*")
 mysql = mc.MySQLClient()
 
 model = svc.SupportVectorClassifier(
@@ -76,7 +78,7 @@ def get_predictions(pair: str, last_n_minutes: int):
         current_result["prediction_remarks"] = u.humanize_prediction(
             predictions[i])
 
-        if open_price < next_close_price:
+        if open_price < next_close_price or open_price == next_close_price:
             if predictions[i] == u.UPTREND:
                 current_result["is_correct_prediction"] = True
 
