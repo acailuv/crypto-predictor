@@ -1,22 +1,32 @@
 import pandas as pd
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sklearn import preprocessing
-from dotenv import load_dotenv
 
-import svc
-import utils as u
 import ccxt_indodax_engine as cie
 import mysql_client as mc
+import svc
+import utils as u
 
 load_dotenv()
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods="*", allow_headers="*")
+app.add_middleware(CORSMiddleware, allow_origins=[
+                   "*"], allow_credentials=True, allow_methods="*", allow_headers="*")
 mysql = mc.MySQLClient()
 
 model = svc.SupportVectorClassifier(
     data_sample_count=50000, kernel_type="rbf", gamma=1000, C=1000, pair="BTCIDR")
+
+
+class PredictionRequest(BaseModel):
+    timestamp: int
+    open_price: int
+    high_price: int
+    low_price: int
+    close_price: int
+    volume: float
 
 
 @app.get("/health")
@@ -110,3 +120,31 @@ def get_predictions(pair: str, last_n_minutes: int):
     return {
         "result": res,
     }
+
+
+@app.post("/predictions")
+def post_predictions(req: PredictionRequest):
+    scaler = u.load_pickle(f"{u.SCALRERS_FOLDER}/BTCIDR.scaler")
+    prediction_input = scaler.transform(
+        [[req.timestamp, req.open_price, req.high_price, req.low_price, req.close_price, req.volume]])
+
+    predictions = model.predict(prediction_input).tolist()
+
+    res = {
+        "timestamp": req.timestamp,
+        "open": req.open_price,
+        "high": req.high_price,
+        "low": req.low_price,
+        "close": req.close_price,
+        "volume": req.volume,
+        "prediction": predictions[0],
+    }
+
+    return {
+        "result": res,
+    }
+
+
+@app.get("/predictions/sample", status_code=501)
+def post_predictions():
+    return "Not Implemented"
