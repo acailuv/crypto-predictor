@@ -4,6 +4,9 @@ services:
     build: ./api
     volumes:
       - ./api:/api
+    environment:
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports: 
       - 8000:8000
   
@@ -11,13 +14,15 @@ services:
     build: ./app
     volumes:
       - ./app:/app
+    environment:
+      APP_MODE: ${APP_MODE}
+      REACT_APP_BASE_URL: ${REACT_APP_BASE_URL}
     ports:
       - 3000:3000
   
   db:
     image: mysql:8
     environment:
-      MYSQL_DATABASE: 'db'
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
