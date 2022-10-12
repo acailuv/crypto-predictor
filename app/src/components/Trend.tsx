@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ApiConnector } from "../utils/ApiConnector";
 import { BACKEND_ENDPOINTS } from "../utils/endpoints";
 
-function Accuracy() {
+function Trend() {
   const [accuracy, setAccuracy] = useState<number>(0);
 
   useEffect(() => {
@@ -18,4 +18,4 @@ function Accuracy() {
   );
 }
 
-export default Accuracy;
+export default Trend;

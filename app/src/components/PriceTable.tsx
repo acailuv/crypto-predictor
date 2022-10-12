@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import { BACKEND_ENDPOINTS } from "../utils/endpoints";
 import { ApiConnector } from "../utils/ApiConnector";
 import { formatIDR } from "../utils/formatter";
+import { Table } from "react-bootstrap";
 
 export enum PredictionRemarks {
   Uptrend = "UPTREND",
   Sideways = "SIDEWAYS",
-  Downtrend = "Downtrend",
+  Downtrend = "DOWNTREND",
 }
 
 interface IPriceData {
@@ -36,43 +34,34 @@ function PriceTable({ cryptoCurrency }: any) {
   }, []);
 
   return (
-    <Container>
-      <Row
-        style={{
-          background: "lightgrey",
-          textAlign: "center",
-          margin: "8px",
-          color: "black",
-        }}
-      >
-        <Col xs>
-          <h5>Open</h5>
-        </Col>
-        <Col xs>
-          <h5>High</h5>
-        </Col>
-        <Col xs>
-          <h5>Low</h5>
-        </Col>
-        <Col xs>
-          <h5>Close</h5>
-        </Col>
-        <Col xs>
-          <h5>Volume</h5>
-        </Col>
-      </Row>
-      {priceData.map((v) => (
-        <Row style={{ textAlign: "center", margin: "8px" }}>
-          <Col xs>{formatIDR(v.open)}</Col>
-          <Col xs>{formatIDR(v.high)}</Col>
-          <Col xs>{formatIDR(v.low)}</Col>
-          <Col xs>{formatIDR(v.close)}</Col>
-          <Col xs>
-            {v.volume} {cryptoCurrency}
-          </Col>
-        </Row>
-      ))}
-    </Container>
+    <Table responsive>
+      <thead>
+        <tr style={{ background: "white" }}>
+          <th>Timestamp</th>
+          <th>Open</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>Close</th>
+          <th>Volume</th>
+          <th>Trend Prediction</th>
+          <th>Actual</th>
+        </tr>
+      </thead>
+      <tbody>
+        {priceData.map((v) => (
+          <tr style={{ textAlign: "center", margin: "8px" }}>
+            <td>{new Date(v.timestamp).toString()}</td>
+            <td>{formatIDR(v.open)}</td>
+            <td>{formatIDR(v.high)}</td>
+            <td>{formatIDR(v.low)}</td>
+            <td>{formatIDR(v.close)}</td>
+            <td>
+              {v.volume} {cryptoCurrency}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 }
 
