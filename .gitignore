@@ -6,5 +6,5 @@ ori/
 *.csv
 *.png
 *.xlsx
-*.model
+# *.model
 .env
