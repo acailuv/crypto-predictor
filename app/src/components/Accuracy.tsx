@@ -12,9 +12,9 @@ function Accuracy({ pair }: any) {
   }, [pair]);
 
   return (
-    <h3 style={{ textAlign: "center" }}>
-      Accuracy: {Math.fround(accuracy * 100)}%
-    </h3>
+    <span style={{ textAlign: "center" }}>
+      {Math.fround(accuracy * 100).toFixed(3)}%
+    </span>
   );
 }
 

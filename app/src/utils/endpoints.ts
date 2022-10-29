@@ -7,4 +7,7 @@ export const BACKEND_ENDPOINTS = {
   ACCURACY: (pair: string) => {
     return `${BASE_URL}/predictions/${pair}/accuracy`;
   },
+  VARIABLE_IMPORTANCE: (pair: string) => {
+    return `${BASE_URL}/predictions/${pair}/variable-importance`;
+  },
 };

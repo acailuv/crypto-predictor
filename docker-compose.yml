@@ -9,6 +9,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports: 
       - 8000:8000
+    depends_on:
+      - db
   
   app:
     build: ./app
@@ -19,6 +21,8 @@ services:
       REACT_APP_BASE_URL: ${REACT_APP_BASE_URL}
     ports:
       - 3000:3000
+    depends_on:
+      - api
   
   db:
     image: mysql:8
@@ -37,6 +41,8 @@ services:
     image: adminer
     ports:
       - 8080:8080
+    depends_on:
+      - db
 
 volumes:
   mysql:

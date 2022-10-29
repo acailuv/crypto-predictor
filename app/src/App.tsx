@@ -12,10 +12,9 @@ import Card from "react-bootstrap/Card";
 import BTCLogo from "./assets/BTC.svg";
 import ETHLogo from "./assets/ETH.svg";
 import USDTLogo from "./assets/USDT.svg";
-import Accuracy from "./components/Accuracy";
 import "animate.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Trend from "./components/Trend";
+import Predictions from "./components/Predictions";
 
 function App() {
   return (
@@ -51,6 +50,7 @@ function App() {
           <Route path="/btc-idr" element={<BTCIDR />} />
           <Route path="/eth-idr" element={<ETHIDR />} />
           <Route path="/usdt-idr" element={<USDTIDR />} />
+          <Route path="/acknowledgement" element={<Acknowledgement />} />
         </Routes>
       </BrowserRouter>
       <Navbar bg="dark" variant="dark">
@@ -70,9 +70,7 @@ function App() {
             </span>
           </Navbar.Brand>
           <Nav className="justify-content-end">
-            <Nav.Link href="/btc-idr">Forecast BTC/IDR</Nav.Link>
-            <Nav.Link href="/eth-idr">Forecast ETH/IDR</Nav.Link>
-            <Nav.Link href="/usdt-idr">Forecast USDT/IDR</Nav.Link>
+            <Nav.Link href="/acknowledgement">Acknowledgement</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
@@ -245,12 +243,7 @@ function BTCIDR() {
       }}
     >
       <header className="App-header">
-        <Container>
-          <h1 style={{ textAlign: "center" }}>BTC/IDR Trend Prediction</h1>
-          <Row></Row>
-          <Accuracy pair="BTCIDR" />
-          <Trend pair="BTCIDR" />
-        </Container>
+        <Predictions pair="BTCIDR" from="BTC" to="IDR" />
       </header>
     </div>
   );
@@ -268,12 +261,7 @@ function ETHIDR() {
       }}
     >
       <header className="App-header">
-        <Container>
-          <h1 style={{ textAlign: "center" }}>ETH/IDR Trend Prediction</h1>
-          <Row></Row>
-          <Accuracy pair="ETHIDR" />
-          <Trend pair="ETHIDR" />
-        </Container>
+        <Predictions pair="ETHIDR" from="ETH" to="IDR" />
       </header>
     </div>
   );
@@ -291,11 +279,35 @@ function USDTIDR() {
       }}
     >
       <header className="App-header">
+        <Predictions pair="USDTIDR" from="USDT" to="IDR" />
+      </header>
+    </div>
+  );
+}
+
+function Acknowledgement() {
+  return (
+    <div
+      className="App"
+      style={{
+        background: "#181E29",
+        minHeight: "100vh",
+        color: "white",
+        padding: "1%",
+      }}
+    >
+      <header className="App-header">
         <Container>
-          <h1 style={{ textAlign: "center" }}>USDT/IDR Trend Prediction</h1>
-          <Row></Row>
-          <Accuracy pair="USDTIDR" />
-          <Trend pair="USDTIDR" />
+          <h1 style={{ textAlign: "center" }}>Acknowledgement</h1>
+          <hr />
+          <p style={{ textAlign: "center" }}>
+            This work has been funded by Directorate of Research, Technology,
+            and Community Services - Directorate General of Higher Education,
+            Research and Technology - Ministry of Education, Culture, Research
+            and Technology, research grant No. 033/E5/PG.02.00/2022; No.
+            435/LL3/AK.04/2022 that managed by the Research and Community
+            Services (LPPM) Universitas Pelita Harapan No. 128/LPPM-UPH/2022.
+          </p>
         </Container>
       </header>
     </div>

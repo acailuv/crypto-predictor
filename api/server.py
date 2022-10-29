@@ -1,6 +1,6 @@
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sklearn import preprocessing
@@ -16,17 +16,11 @@ app.add_middleware(CORSMiddleware, allow_origins=[
                    "*"], allow_credentials=True, allow_methods="*", allow_headers="*")
 mysql = mc.MySQLClient()
 
-model = svc.SupportVectorClassifier(
-    data_sample_count=50000, kernel_type="rbf", gamma=1000, C=1000, pair="BTCIDR")
-
-
-class PredictionRequest(BaseModel):
-    timestamp: int
-    open_price: int
-    high_price: int
-    low_price: int
-    close_price: int
-    volume: float
+model = {
+    "BTCIDR": svc.SupportVectorClassifier(data_sample_count=50000, kernel_type="rbf", gamma=1000, C=1000, pair="BTCIDR"),
+    "ETHIDR": svc.SupportVectorClassifier(data_sample_count=50000, kernel_type="rbf", gamma=100, C=100, pair="ETHIDR"),
+    "USDTIDR": svc.SupportVectorClassifier(data_sample_count=50000, kernel_type="rbf", gamma=100, C=100, pair="USDTIDR"),
+}
 
 
 @app.get("/health")
@@ -54,7 +48,15 @@ def get_predictions(pair: str):
     scaler = u.load_pickle(f"{u.SCALRERS_FOLDER}/{pair.upper()}.scaler")
     prediction_input = scaler.transform(latest_data)
 
-    predictions = model.predict(prediction_input).tolist()
+    try:
+        selected_model = model[u.alphanumeric_only(pair).upper()]
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Pair {pair} is not supported',
+        )
+
+    predictions = selected_model.predict(prediction_input).tolist()
 
     return {
         "result": {
@@ -64,6 +66,34 @@ def get_predictions(pair: str):
     }
 
 
-@app.get("/predictions/sample", status_code=501)
-def post_predictions():
-    return "Not Implemented"
+@app.get("/predictions/{pair}/variable-importance")
+def post_predictions(pair: str):
+    try:
+        selected_model = model[u.alphanumeric_only(pair).upper()]
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Pair {pair} is not supported',
+        )
+
+    importance = selected_model.classifier._get_coef()[0]
+    columns = ["Timestamp", "Open", "High", "Low", "Close", "Volume"]
+    # importance, columns = zip(*sorted(zip(importance, columns)))
+
+    res = []
+    minImp, maxImp = min(importance), max(importance)
+
+    for i in range(len(importance)):
+        importance[i] -= minImp
+        importance[i] /= (maxImp - minImp)
+        importance[i] *= 100
+
+    for i in range(len(importance)):
+        res.append({
+            "column": columns[i],
+            "importance": importance[i]
+        })
+
+    return {
+        "result": res
+    }
