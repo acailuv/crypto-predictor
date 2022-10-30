@@ -13,7 +13,20 @@ class MySQLClient:
 
         self.cursor = self.connection.cursor()
 
+    def reconnect(self):
+        if not self.connection.is_connected():
+            self.connection = mysql.connector.connect(
+                host='db',
+                user=os.environ.get("MYSQL_USERNAME"),
+                password=os.environ.get("MYSQL_PASSWORD"),
+                database='db'
+            )
+
+            self.cursor = self.connection.cursor()
+
     def read_common_data(self, key, cast_to=str):
+        self.reconnect()
+
         sql = "SELECT * FROM common WHERE `key` = %s"
         self.cursor.execute(sql, [key])
 
@@ -36,6 +49,8 @@ class MySQLClient:
         return res[0]
 
     def write_common_data(self, key, value):
+        self.reconnect()
+
         sql = "INSERT INTO common (`key`, value) VALUES (%s, %s) ON DUPLICATE KEY UPDATE value = %s"
         val = (key, value, value)
         self.cursor.execute(sql, val)
