@@ -46,11 +46,25 @@ function VariableImportanceGraph({ pair }: any) {
   const [importanceData, setImportanceData] = useState<Array<IImportanceData>>(
     []
   );
+  const [lowestImportanceData, setLowestImportanceData] =
+    useState<IImportanceData>({
+      column: "",
+      importance: 0,
+    });
 
   useEffect(() => {
     ApiConnector.get(BACKEND_ENDPOINTS.VARIABLE_IMPORTANCE(pair)).then(
       (data: any) => {
         setImportanceData(data.result);
+
+        let lowest = data.result[0];
+        data.result.forEach((v: any) => {
+          if (v.importance < lowest.importance) {
+            lowest = v;
+          }
+        });
+
+        setLowestImportanceData(lowest);
       }
     );
   }, [pair]);
@@ -65,6 +79,15 @@ function VariableImportanceGraph({ pair }: any) {
       </p>
       <div>
         <Graph importanceData={importanceData} />
+        <h4>Notes:</h4>
+        <ul>
+          <li>
+            These values has been <u>normalized</u>.
+          </li>
+          <li>
+            "{lowestImportanceData.column}" is the point of <u>reference</u>.
+          </li>
+        </ul>
       </div>
     </div>
   );
